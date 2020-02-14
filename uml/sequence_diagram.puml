@@ -1,0 +1,41 @@
+@startuml
+skinparam defaultTextAlignment center
+skinparam sequenceMessageAlign center
+skinparam roundcorner 10
+skinparam defaultFontSize 14
+skinparam defaultFontStyle bold
+skinparam defaultFontName Consolas
+
+
+title
+<size:25>flask-serverless</size>
+end title
+
+'선언
+actor "Client" as cli
+box "<size:18>AWS Cloud</size>"
+participant "API Gateway" as api
+participant "Lambda" as lam
+participant "DynamoDB" as db
+end box
+'선언끝
+
+'본문
+autonumber "<b>##."
+cli -> api : Request
+activate cli
+activate api
+api -> lam : Request
+activate lam
+lam -> lam : Process
+lam -> db : DB Query
+activate db
+db --> lam : Query Result
+deactivate db
+lam -> lam : Result Process
+lam --> api : Response
+deactivate lam
+api --> cli : Response
+deactivate api
+deactivate cli
+@enduml
