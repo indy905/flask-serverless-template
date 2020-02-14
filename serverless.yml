@@ -1,0 +1,78 @@
+service: flask-serverless
+
+plugins:
+  - serverless-python-requirements
+  - serverless-offline
+  - serverless-wsgi
+
+custom:
+  userTableName: 'flask-serverless-user-${self:provider.stage}'
+  wsgi:
+    app: app.app
+    packRequirements: false
+  pythonRequirements:
+    dockerizePip: non-linux
+
+package:
+  exclude:
+    - node_modules/**
+    - venv/**
+
+provider:
+  name: aws
+  runtime: python3.7
+  stage: ${opt:stage, 'dev'}
+  region: ap-northeast-2
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": ["UserDynamoDBTable", "Arn" ] }
+  environment:
+    USER_TABLE: ${self:custom.userTableName}
+    CONFIG: ${self:provider.stage}
+
+functions:
+  app:
+    handler: wsgi_handler.handler
+    events:
+      - http:
+          path: user/{id}
+          method: get
+          integration: lambda-proxy
+          cors: true
+      - http:
+          path: user
+          method: post
+          integration: lambda-proxy
+          cors: true
+      - http:
+          path: user/{id}
+          method: delete
+          integration: lambda-proxy
+          cors: true
+
+resources:
+  Resources:
+    UserDynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.userTableName}
