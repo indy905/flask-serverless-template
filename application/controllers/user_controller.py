@@ -4,6 +4,7 @@ from http import HTTPStatus
 from flask import jsonify, Blueprint, make_response
 
 from application.exceptions.already_user_exists_exception import AlreadyUserExistsException
+from application.exceptions.form_validation_exception import FormValidationException
 from application.exceptions.user_not_found_exception import UserNotFoundException
 from application.models.dtos.users.create_user_dto import CreateUserDto
 from application.services.user_service import UserService
@@ -23,7 +24,8 @@ def exception_handler(error):
     :return: Common exception response
     """
     if isinstance(error, AlreadyUserExistsException) \
-            or isinstance(error, UserNotFoundException):
+            or isinstance(error, UserNotFoundException) \
+            or isinstance(error, FormValidationException):
         user_logger.error(error.to_dict())
         response = jsonify(error.to_dict())
         response.status_code = error.status_code
@@ -42,8 +44,8 @@ def get_user(id: str):
     :param id: user id
     :return: user json
     """
-    # TODO: get user
-    return make_response(json.dumps({}, ensure_ascii=False), 200)
+    result = user_service.get_user(user_id=id)
+    return make_response(json.dumps(result, ensure_ascii=False), 200)
 
 
 @user_blueprint.route('/', methods=['POST'], endpoint='create_user')
@@ -55,8 +57,10 @@ def create_user(create_user_dto: CreateUserDto):
     :param create_user_dto:
     :return: user json
     """
-    # TODO: create user
-    return make_response(json.dumps({}, ensure_ascii=False), 200)
+    if not create_user_dto.validate():
+        raise FormValidationException(create_user_dto.errors)
+    result = user_service.create_user(create_user_dto)
+    return make_response(json.dumps(result, ensure_ascii=False), 200)
 
 
 @user_blueprint.route('/<id>/', methods=['DELETE'], endpoint='delete_user')
@@ -67,5 +71,5 @@ def delete_user(id: str):
     :param id: user id
     :return: delete success (200 OK) or not
     """
-    # TODO: delete user
-    return make_response(json.dumps({}, ensure_ascii=False), 200)
+    result = user_service.delete_user(user_id=id)
+    return make_response(json.dumps(result, ensure_ascii=False), 200)

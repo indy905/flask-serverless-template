@@ -1,10 +1,11 @@
+# 서비스명
 service: flask-serverless
 
+# 사용할 Serverless framework 플러그인
 plugins:
   - serverless-python-requirements
   - serverless-offline
   - serverless-wsgi
-
 custom:
   userTableName: 'flask-serverless-user-${self:provider.stage}'
   wsgi:
@@ -13,11 +14,13 @@ custom:
   pythonRequirements:
     dockerizePip: non-linux
 
+# 패키징 시 제외할 폴더
 package:
   exclude:
     - node_modules/**
     - venv/**
 
+# 배포할 프로바이더 설정
 provider:
   name: aws
   runtime: python3.7
@@ -35,10 +38,12 @@ provider:
         - dynamodb:DeleteItem
       Resource:
         - { "Fn::GetAtt": ["UserDynamoDBTable", "Arn" ] }
+  # 환경변수
   environment:
     USER_TABLE: ${self:custom.userTableName}
     CONFIG: ${self:provider.stage}
 
+# API Gateway 설정
 functions:
   app:
     handler: wsgi_handler.handler
@@ -59,8 +64,10 @@ functions:
           integration: lambda-proxy
           cors: true
 
+# AWS Resource 설정
 resources:
   Resources:
+    # DynamoDB 생성 설정
     UserDynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:

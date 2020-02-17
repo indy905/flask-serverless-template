@@ -1,0 +1,4 @@
+flask==1.1.1
+pynamodb==4.2.0
+flask-cors==3.0.8
+WTForms==2.2.1
