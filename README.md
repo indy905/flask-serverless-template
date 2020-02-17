@@ -3,4 +3,4 @@ Flask, PynamoDB, Serverless를 활용하여 AWS API Gateway, Lambda, DynamoDB �
 
 자세한 설명은 아래 블로그 URL을 참고하세요.
 
-https://blog.naver.com/indy9052/
+https://blog.naver.com/indy9052/221812731781
