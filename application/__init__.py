@@ -12,7 +12,7 @@ def create_app(config_name):
     # 환경변수 설정
     conf = config_by_name[config_name]
     app.config.from_object(conf)
-    app.config['JSON_AS_ASCII'] = False
+    app.json.ensure_ascii = False
     # 컨트롤러 blueprint 등록
     register_blueprint(app)
     return app

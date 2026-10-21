@@ -40,5 +40,5 @@ class BaseModel(Model):
             return attr
 
     def __iter__(self):
-        for name, attr in self._get_attributes().items():
+        for name, attr in self.get_attributes().items():
             yield name, attr.serialize(getattr(self, name))
