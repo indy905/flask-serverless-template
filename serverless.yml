@@ -19,11 +19,13 @@ package:
   exclude:
     - node_modules/**
     - venv/**
+    - .venv/**
+    - test_*.py
 
 # 배포할 프로바이더 설정
 provider:
   name: aws
-  runtime: python3.7
+  runtime: python3.12
   stage: ${opt:stage, 'dev'}
   region: ap-northeast-2
   iamRoleStatements:
